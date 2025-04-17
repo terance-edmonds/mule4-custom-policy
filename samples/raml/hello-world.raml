@@ -1,0 +1,64 @@
+#%RAML 1.0
+title: Hello World API
+version: v1
+description: A simple API to manage greetings for testing custom Mule 4 policies
+
+types:
+  Greeting:
+    properties:
+      todays-greeting:
+        type: string
+        required: true
+        example: "Hello, World!"
+  Error:
+    properties:
+      message:
+        type: string
+        required: true
+
+/greeting:
+  get:
+    description: Retrieve a greeting
+    headers:
+      X-Request-ID:
+        type: string
+        required: false
+        example: "12345"
+    responses:
+      200:
+        body:
+          application/json:
+            type: Greeting
+            example:
+              todays-greeting: "Hello, World!"
+      404:
+        body:
+          application/json:
+            type: Error
+            example:
+              message: "Greeting not found"
+  post:
+    description: Create a new greeting
+    headers:
+      X-Request-ID:
+        type: string
+        required: false
+        example: "67890"
+    body:
+      application/json:
+        type: Greeting
+        example:
+          todays-greeting: "Welcome to the World!"
+    responses:
+      201:
+        body:
+          application/json:
+            type: Greeting
+            example:
+              todays-greeting: "Welcome to the World!"
+      400:
+        body:
+          application/json:
+            type: Error
+            example:
+              message: "Invalid greeting provided"

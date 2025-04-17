@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy"
+    xmlns:http-transform="http://www.mulesoft.org/schema/mule/http-policy-transform"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                        http://www.mulesoft.org/schema/mule/http-policy http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd
+                        http://www.mulesoft.org/schema/mule/http-policy-transform http://www.mulesoft.org/schema/mule/http-policy-transform/current/mule-http-policy-transform.xsd">
+
+
+    <http-policy:proxy name="{{{policyId}}}-custom-policy">
+        <http-policy:source>
+            <logger message="Started inboundLogExpression Policy execution" />
+            <logger level="INFO"
+                message="{{{inboundLogExpression}}}" />
+            <logger
+                message="Ended inboundLogExpression Policy execution" /> {{#if requestPayload}} <logger
+                message="Started requestPayload Policy execution" />
+            <logger level="INFO"
+                message="#[payload]" />
+            <logger message="Ended requestPayload Policy execution" />
+            {{/if}} {{#each logRequestHeader}} <logger
+                message="Started logRequestHeader Policy execution" />
+            <logger level="INFO"
+                message="{{{this.key}}}:{{{this.value}}}" />
+            <logger
+                message="Ended logRequestHeader Policy execution" /> {{/each}} <http-policy:execute-next />
+            {{#each logResponseHeader}} <logger message="Started logResponseHeader Policy execution" />
+            <logger
+                level="INFO" message="{{{this.key}}}:{{{this.value}}}" />
+            <logger
+                message="Ended logResponseHeader Policy execution" /> {{/each}} {{#if
+            responsePayload}} <logger message="Started responsePayload Policy execution" />
+            <logger
+                level="INFO" message="#[payload]" />
+            <logger
+                message="Ended responsePayload Policy execution" /> {{/if}} </http-policy:source>
+    </http-policy:proxy>
+</mule>

@@ -1,0 +1,12 @@
+id: custom-logging-policy
+name: custom-logging-policy
+description: custom logging policy
+category: Custom
+type: custom
+resourceLevelSupported: true
+encryptionSupported: false
+standalone: true
+supportedJavaVersions: ["8", "11", "17"]
+requiredCharacteristics: []
+providedCharacteristics: []
+configuration: []
