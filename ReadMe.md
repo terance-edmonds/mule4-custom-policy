@@ -1,6 +1,12 @@
-# Custom Policy and API Setup on Mule 4
+# Mule 4 Custom Policies Project
 
-This guide provides step-by-step instructions for creating a custom policy and setting up an API using Mule 4, including prerequisites, configuration, and testing.
+This project contains two custom Mule 4 policies for use with Anypoint Platform, along with instructions for setting up and testing APIs. Each policy enhances API management capabilities and can be applied to APIs via API Manager.
+
+## Project Structure
+
+- `custom-logging-policy/`: Contains a custom policy that logs incoming and outgoing request/response details (e.e., headers and payloads). See `custom-logging-policy/README.md` for details.
+- `custom-api-call-policy/`: Contains a custom policy that sends incoming request payloads and headers to an external API endpoint (e.g., a webhook). See `custom-api-call-policy/README.md` for details.
+- `samples/`: Contains sample configuration files (e.g., `settings.xml`, `hello-world.raml`, policy YAMLs) referenced by both policies.
 
 ## Prerequisites
 
@@ -10,123 +16,17 @@ This guide provides step-by-step instructions for creating a custom policy and s
 
 ## Setup `settings.xml` (Linux)
 
-1. A sample `settings.xml` file is located at <a target="_blank" href="./samples/.m2/settings.xml">`./samples/.m2/settings.xml`</a>.
+1. A sample `settings.xml` file is located at `samples/.m2/settings.xml`.
+
 2. Replace `<username>{username}</username>` and `<password>{password}</password>` with your Anypoint Platform credentials.
+
 3. Update the `settings.xml` file:
 
    ```bash
    nano ~/.m2/settings.xml
    ```
+
 4. Copy the modified `settings.xml` content into `~/.m2/settings.xml`.
-
-## Creating a Custom Policy
-
-Reference: MuleSoft Custom Policy Documentation
-
-A sample custom policy is available at <a target="_blank" href="./custom-logging-policy">`./custom-logging-policy`</a>.
-
-### Steps
-
-1. **Obtain Organization ID**:
-
-   - Go to https://anypoint.mulesoft.com/accounts/businessGroups.
-   - Select your business group and note the **Business Group ID**.
-
-2. **Generate Custom Policy**: Run the following Maven command, replacing `${orgId}` with your organization ID:
-
-   ```bash
-   mvn -Parchetype-repository archetype:generate \
-   -DarchetypeGroupId=org.mule.tools \
-   -DarchetypeArtifactId=api-gateway-custom-policy-archetype \
-   -DarchetypeVersion=1.2.0 \
-   -DgroupId=${orgId} \
-   -DartifactId=custom-logging-policy \
-   -Dversion=1.0.0 \
-   -Dpackage=mule-policy
-   ```
-
-3. **Provide Prompt Details**:
-
-   - `policyDescription`: Custom logging policy
-   - `policyName`: custom-logging-policy
-   - `groupId`: ${orgId}
-
-4. **Update Policy Configuration**:
-
-   - Replace the contents of `custom-logging-policy/custom-logging-policy.yaml` with the sample provided at <a target="_blank" href="./samples/custom-logging-policy/custom-logging-policy.yaml">`./samples/custom-logging-policy/custom-logging-policy.yaml`</a>.
-
-5. **Modify** `template.xml`:
-
-   - In `custom-logging-policy/src/main/mule/template.xml`, replace the `<http-policy:source>` section with:
-
-     ```xml
-     <http-policy:source>
-         <logger message="Started inboundLogExpression Policy execution" />
-         <logger level="INFO" message="{{{inboundLogExpression}}}"/>
-         <logger message="Ended inboundLogExpression Policy execution" />
-     
-         {{#if requestPayload}}
-         <logger message="Started requestPayload Policy execution" />
-         <logger level="INFO" message="#[payload]"/>
-         <logger message="Ended requestPayload Policy execution" />
-         {{/if}}
-     
-         {{#each logRequestHeader}}
-         <logger message="Started logRequestHeader Policy execution" />
-         <logger level="INFO" message="{{{this.key}}}:{{{this.value}}}"/>
-         <logger message="Ended logRequestHeader Policy execution" />
-         {{/each}}
-     
-         <http-policy:execute-next/>
-     
-         {{#each logResponseHeader}}
-         <logger message="Started logResponseHeader Policy execution" />
-         <logger level="INFO" message="{{{this.key}}}:{{{this.value}}}"/>
-         <logger message="Ended logResponseHeader Policy execution" />
-         {{/each}}
-     
-         {{#if responsePayload}}
-         <logger message="Started responsePayload Policy execution" />
-         <logger level="INFO" message="#[payload]"/>
-         <logger message="Ended responsePayload Policy execution" />
-         {{/if}}
-     </http-policy:source>
-     ```
-
-6. **Update** `pom.xml`:
-
-   - In `custom-logging-policy/pom.xml`, comment out the following dependency (as it is for enterprise use only):
-
-     ```xml
-     <!--
-     <dependency>
-         <groupId>com.mulesoft.anypoint</groupId>
-         <artifactId>mule-http-policy-transform-extension</artifactId>
-         <version>${http.policy.transform.extension}</version>
-         <classifier>mule-plugin</classifier>
-         <exclusions>
-             <exclusion>
-                 <groupId>org.mule.connectors</groupId>
-                 <artifactId>mule-http-connector</artifactId>
-             </exclusion>
-         </exclusions>
-     </dependency>
-     -->
-     ```
-
-7. **Build and Deploy Policy**:
-
-   - Navigate to the `custom-logging-policy` directory and run:
-
-     ```bash
-     mvn clean package
-     mvn clean deploy
-     ```
-
-8. **Verify Policy**:
-
-   - Visit https://anypoint.mulesoft.com/exchange.
-   - Search for **custom logging policy** to confirm the policy is available.
 
 ## Creating an API
 
@@ -136,11 +36,11 @@ Follow the guide: [API Auto-Discovery for Mule 4](https://apisero.medium.com/api
 
 1. **Use Sample RAML**:
 
-   - Use the sample RAML file located at <a target="_blank" href="./samples/raml/hello-world.raml">`./samples/raml/hello-world.raml`</a>.
+   - Use the sample RAML file located at `samples/raml/hello-world.raml`.
 
 2. **Find Environment Credentials**:
 
-   - Navigate to https://anypoint.mulesoft.com/accounts/businessGroups/${your-orgId-here}/environments to find credentials for the environment where the application will be deployed.
+   - Navigate to https://anypoint.mulesoft.com/accounts/businessGroups/${your-orgId-hrav}/environments to find credentials for the environment where the application will be deployed.
 
 3. **Deploy Application**:
 
@@ -148,7 +48,7 @@ Follow the guide: [API Auto-Discovery for Mule 4](https://apisero.medium.com/api
      - Under the **Mule** section, select **Anypoint Studio Project to Mule Deployable Archive**.
    - Deploy the application in **Runtime Manager** to activate API Auto-Discovery.
 
-## Testing
+## Testing the API
 
 1. **Check Public Endpoint**:
 
@@ -160,12 +60,53 @@ Follow the guide: [API Auto-Discovery for Mule 4](https://apisero.medium.com/api
 
 2. **Invoke the API**:
 
-   - Use the endpoint to invoke the API, e.g.:
+   - Send a request to the API endpoint. For example, using `curl` for a POST request:
 
+     ```bash
+     curl -X POST https://hello-world-k4qecw.5sc6y6-2.usa-e2.cloudhub.io/api/greeting \
+     -H "Content-Type: application/json" \
+     -d '{"test": "data"}'
      ```
-     https://hello-world-k4qecw.5sc6y6-2.usa-e2.cloudhub.io/api/greeting
-     ```
 
-3. **Verify Logs**:
+3. **Policy-Specific Testing**:
 
-   - Check the **Runtime Logs** in Runtime Manager to view the logs generated by the custom policy.
+   - Each policy requires specific verification steps:
+     - For `custom-logging-policy`, check Runtime Manager logs for request/response details.
+     - For `custom-api-call-policy`, verify the external endpoint (e.g., webhook.site) receives the payload and headers.
+   - Refer to the respective `README.md` in `custom-log#pragma` or `custom-api-call-policy` for detailed testing instructions.
+
+## Available Policies
+
+1. **Custom Logging Policy**:
+
+   - Logs incoming and outgoing request/response headers and payloads for debugging and monitoring.
+   - Ideal for tracking API traffic.
+   - Instructions: `custom-logging-policy/README.md`
+
+2. **Custom API Call Policy**:
+
+   - Sends incoming request payloads and headers to an external API endpoint (e.g., `https://webhook.site`).
+   - Useful for integration, auditing, or forwarding data.
+   - Instructions: `custom-api-call-policy/README.md`
+
+## Usage
+
+- Choose a policy based on your needs and follow its `README.md` for instructions on:
+  - Generating the policy using Maven.
+  - Configuring the policy with a YAML file.
+  - Modifying the `template.xml` for policy logic.
+  - Deploying the policy to Anypoint Platform.
+  - Applying the policy to an API in API Manager.
+  - Testing the policy with API requests.
+
+## Notes
+
+- Ensure your Anypoint Platform organization ID is used in Maven commands, as described in each policy’s README.
+- Both policies are designed for Mule #pragma 4.9.3 and support Java 8, 11, or 17.
+- The `samples/` directory contains shared resources (e.g., `hello-world.raml`) for API creation.
+- For production, customize policy configurations (e.g., replace the webhook.site endpoint with your API).
+
+For detailed instructions, refer to:
+
+- `custom-logging-policy/README.md`
+- `custom-api-call-policy/README.md`
