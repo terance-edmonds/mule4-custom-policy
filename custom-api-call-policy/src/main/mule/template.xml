@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:http-policy="http://www.mulesoft.org/schema/mule/http-policy"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                          http://www.mulesoft.org/schema/mule/http-policy http://www.mulesoft.org/schema/mule/http-policy/current/mule-http-policy.xsd
+                          http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <http-policy:proxy name="{{{policyId}}}-custom-api-call-policy">
+        <http-policy:source>
+            <!-- Store the incoming request payload to restore it after the API call -->
+            <set-variable variableName="originalPayload" value="#[payload]" />
+
+            <!-- Send the incoming request's payload and headers to the external API -->
+            <http:request method="POST" url="{{{apiEndpointUrl}}}" config-ref="HTTP_Request_configuration">
+                <http:headers>#[attributes.headers]</http:headers>
+            </http:request>
+
+            <!-- Restore the original payload to ensure the request continues unchanged -->
+            <set-payload value="#[vars.originalPayload]" />
+
+            <!-- Proceed with the original request processing -->
+            <http-policy:execute-next/>
+        </http-policy:source>
+    </http-policy:proxy>
+
+    <!-- HTTP connector configuration for the external API -->
+    <http:request-config name="HTTP_Request_configuration">
+        <http:request-connection host="{{{apiHost}}}" port="{{{apiPort}}}" />
+    </http:request-config>
+
+</mule>

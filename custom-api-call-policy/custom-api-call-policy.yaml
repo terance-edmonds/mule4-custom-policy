@@ -1,0 +1,26 @@
+id: custom-api-call-policy
+name: custom-api-call-policy
+description: Custom policy to call an external API endpoint
+category: Custom
+type: custom
+resourceLevelSupported: true
+encryptionSupported: false
+standalone: true
+requiredCharacteristics: []
+providedCharacteristics: []
+configuration:
+  - propertyName: apiEndpointUrl
+    name: API Endpoint URL
+    description: The URL of the external API to call
+    type: string
+    optional: false
+  - propertyName: apiHost
+    name: API Host
+    description: The hostname of the external API
+    type: string
+    optional: false
+  - propertyName: apiPort
+    name: API Port
+    description: The port number of the external API (e.g., 443 for HTTPS)
+    type: string
+    optional: false
